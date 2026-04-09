@@ -1,0 +1,34 @@
+{
+    "project_status_data": {
+        "actual": "0",
+        "baseline": "0",
+        "current_date": "2026-04-09",
+        "forecast_date": "2026-05-09"
+    },
+    "sidebar_visibility": {
+        "contact": true,
+        "briefing": true,
+        "gallery": true,
+        "archive": true,
+        "website_link": true,
+        "gallery_path": "",
+        "archive_path": ""
+    },
+    "field_visibility": {
+        "current_date": true,
+        "forecast_date": true,
+        "actual_percent": true,
+        "baseline_percent": true,
+        "variance": true,
+        "duration": true,
+        "elapsed": true,
+        "overall_status": true,
+        "scurve": true,
+        "delays": true,
+        "safety": true,
+        "feedback": true,
+        "total_delay": true,
+        "photos": true,
+        "pdf_schedule": true
+    }
+}
