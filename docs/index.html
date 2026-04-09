@@ -1,0 +1,372 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=1000">
+        <title>HMP Shovel 5001 - Daily Progress</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            // Sidebar Accordion Logic
+            window.toggleAccordion = function(idx, total) {
+                for(let i=0; i<total; i++) {
+                    if(i !== idx) {
+                        let content = document.getElementById('folder-content-'+i);
+                        let icon = document.getElementById('folder-icon-'+i);
+                        if(content && !content.classList.contains('hidden')) {
+                            content.classList.add('hidden');
+                        }
+                        if(icon && icon.classList.contains('rotate-180')) {
+                            icon.classList.remove('rotate-180');
+                        }
+                    }
+                }
+                document.getElementById('folder-content-'+idx).classList.toggle('hidden');
+                document.getElementById('folder-icon-'+idx).classList.toggle('rotate-180');
+            };
+
+            // Charts Initialization
+            window.onload = function() {
+                const ctx = document.getElementById('sCurveChart');
+                if (ctx) {
+                    new Chart(ctx.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: [],
+                            datasets: []
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: function(context) { return context.dataset.label + ': ' + context.parsed.y + '%'; } } } },
+                            scales: { y: { beginAtZero: true, max: 100, ticks: { callback: function(value) { return value + '%'; } } } }
+                        }
+                    });
+                }
+                
+                const ctxDelay = document.getElementById('delayChart');
+                if (ctxDelay) {
+                    new Chart(ctxDelay.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: [],
+                            datasets: [
+                                {
+                                    label: 'Cumulative Delay (Hours)',
+                                    data: [],
+                                    borderColor: '#E11D48',
+                                    backgroundColor: 'rgba(225, 29, 72, 0.1)',
+                                    borderWidth: 3,
+                                    fill: true,
+                                    tension: 0.4,
+                                    pointBackgroundColor: '#E11D48',
+                                    pointRadius: 4
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { position: 'top' } },
+                            scales: { y: { beginAtZero: true, title: { display: true, text: 'Hours' } } }
+                        }
+                    });
+                }
+            };
+        </script>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+            body { font-family: 'Inter', sans-serif; color: #1e293b; background-color: #f8fafc; background-image: url('../../smart%20view%20reports/smart%20view%20reports%20-%20application%20-%20test%20for%20desktop/application_system_files/core_engine/app_assets/templates/report%20background.png'); background-size: cover; background-position: center; background-attachment: fixed; }
+            .glass { background: rgba(241, 245, 249, 0.92); backdrop-filter: blur(8px); border: 1px solid rgba(203, 213, 225, 0.9); border-radius: 1rem; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.12), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+            .theme-orange { color: #F37021; }
+            .bg-theme-orange { background-color: #F37021; }
+            .theme-green { color: #8CC63F; }
+            .bg-theme-green { background-color: #8CC63F; }
+
+            @media print {
+                @page { size: A3 landscape; margin: 10mm; }
+                body { 
+                    -webkit-print-color-adjust: exact !important; 
+                    print-color-adjust: exact !important; 
+                    background-image: url('../../smart%20view%20reports/smart%20view%20reports%20-%20application%20-%20test%20for%20desktop/application_system_files/core_engine/app_assets/templates/report%20background.png') !important;
+                    background-size: cover !important;
+                    background-attachment: scroll !important;
+                }
+                .glass {
+                    background: rgba(241, 245, 249, 0.92) !important;
+                    backdrop-filter: blur(8px) !important;
+                    -webkit-backdrop-filter: blur(8px) !important;
+                    border: 1px solid rgba(203, 213, 225, 0.9) !important;
+                }
+            }
+        </style>
+    </head>
+    <body class="min-h-screen p-6 flex flex-col items-center relative">
+        
+        <!-- Hamburger Menu Button -->
+        <button onclick="document.getElementById('main-sidebar').classList.remove('-translate-x-full')" class="fixed top-6 left-6 z-40 bg-white/90 hover:bg-white text-gray-800 p-3 rounded-xl shadow-xl shrink-0 transition-all hover:scale-105 border border-gray-200 backdrop-blur print:hidden">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+
+        <!-- Sidebar Overlay & Menu -->
+        <div id="main-sidebar" class="fixed inset-y-0 left-0 w-80 bg-gray-900 shadow-2xl transform -translate-x-full transition-transform duration-300 z-[70] flex flex-col overflow-hidden print:hidden">
+            <div class="absolute inset-0 opacity-20 pointer-events-none flex items-center justify-center overflow-hidden z-0">
+                <img src="../../smart%20view%20reports/smart%20view%20reports%20-%20application%20-%20test%20for%20desktop/application_system_files/core_engine/app_assets/smart%20view%20reports%20logo/smart%20view%20reports%20logo.png" style="transform: scale(1.5);" class="max-w-none w-[150%]">
+            </div>
+            <!-- Sidebar Header -->
+            <div class="p-5 border-b border-gray-800 flex justify-between items-center bg-black/20 relative z-10">
+                <h2 class="text-lg font-bold text-white tracking-widest uppercase flex items-center gap-2">
+                    <svg class="w-5 h-5 text-theme-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    Resources
+                </h2>
+                <button onclick="document.getElementById('main-sidebar').classList.add('-translate-x-full')" class="text-gray-400 hover:text-white transition-colors p-1 bg-gray-800 rounded">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <!-- Sidebar Content -->
+            <div class="p-4 flex-grow overflow-y-auto relative z-10">
+                <p class="text-xs text-gray-500 uppercase tracking-widest mb-4 font-bold">Directories</p>
+                
+    <div class="mb-3">
+        <button onclick="toggleAccordion(0, '5');" 
+                class="w-full flex justify-between items-center bg-gray-800 hover:bg-theme-orange text-white p-3 rounded shadow-sm transition-colors text-sm font-semibold">
+            <span class="truncate pr-2">Contact Information</span>
+            <svg id="folder-icon-0" class="w-4 h-4 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+        <div id="folder-content-0" class="hidden bg-slate-200 border-x border-b border-gray-300 rounded-b mt-[-2px] shadow-inner">
+            <p class="text-xs text-gray-400 italic p-4 text-center">No information provided.</p>
+        </div>
+    </div>
+    
+    <div class="mb-3">
+        <button onclick="toggleAccordion(1, '5');" 
+                class="w-full flex justify-between items-center bg-gray-800 hover:bg-theme-orange text-white p-3 rounded shadow-sm transition-colors text-sm font-semibold">
+            <span class="truncate pr-2">Project Briefing</span>
+            <svg id="folder-icon-1" class="w-4 h-4 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+        <div id="folder-content-1" class="hidden bg-slate-200 border-x border-b border-gray-300 rounded-b mt-[-2px] shadow-inner">
+            <p class="text-xs text-gray-400 italic p-4 text-center">No information provided.</p>
+        </div>
+    </div>
+    
+    <div class="mb-3">
+        <button onclick="toggleAccordion(2, '5');" 
+                class="w-full flex justify-between items-center bg-gray-800 hover:bg-theme-orange text-white p-3 rounded shadow-sm transition-colors text-sm font-semibold">
+            <span class="truncate pr-2">Project Gallery</span>
+            <svg id="folder-icon-2" class="w-4 h-4 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+        <div id="folder-content-2" class="hidden bg-slate-200 border-x border-b border-gray-300 rounded-b mt-[-2px] shadow-inner">
+            <p class="text-xs text-gray-400 italic p-4 text-center">No information provided.</p>
+        </div>
+    </div>
+    
+    <div class="mb-3">
+        <button onclick="toggleAccordion(3, '5');" 
+                class="w-full flex justify-between items-center bg-gray-800 hover:bg-theme-orange text-white p-3 rounded shadow-sm transition-colors text-sm font-semibold">
+            <span class="truncate pr-2">Master Schedule</span>
+            <svg id="folder-icon-3" class="w-4 h-4 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+        <div id="folder-content-3" class="hidden bg-slate-200 border-x border-b border-gray-300 rounded-b mt-[-2px] shadow-inner">
+            <p class="text-xs text-gray-400 italic p-4 text-center">No information provided.</p>
+        </div>
+    </div>
+    
+    <div class="mb-3">
+        <button onclick="toggleAccordion(4, '5');" 
+                class="w-full flex justify-between items-center bg-gray-800 hover:bg-theme-orange text-white p-3 rounded shadow-sm transition-colors text-sm font-semibold">
+            <span class="truncate pr-2">Report Archive</span>
+            <svg id="folder-icon-4" class="w-4 h-4 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+        <div id="folder-content-4" class="hidden bg-slate-200 border-x border-b border-gray-300 rounded-b mt-[-2px] shadow-inner">
+            <p class="text-xs text-gray-400 italic p-4 text-center">Archive path not set.</p>
+        </div>
+    </div>
+    
+            </div>
+            
+            <!-- Sidebar Footer -->
+            <div class="p-4 border-t border-gray-800 bg-gray-900/80 relative z-10" style="display: block;">
+                <a href="https://hlelaprojects.africa/" target="_blank" class="flex justify-center items-center gap-2 w-full py-3 px-4 bg-theme-orange hover:bg-orange-600 text-white font-bold text-center rounded shadow-lg transition-colors text-sm uppercase tracking-wider">
+                    Visit Smart View Reports Website
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                </a>
+            </div>
+        </div>
+
+        
+        <!-- Document Modal -->
+        <div id="doc-modal" class="fixed inset-0 z-[60] hidden bg-black/80 flex items-center justify-center p-4 transition-opacity">
+            <div class="bg-white w-full h-full max-w-6xl max-h-[95vh] rounded-xl shadow-2xl flex flex-col overflow-hidden">
+                <div class="p-3 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                    <h2 id="doc-modal-title" class="text-lg font-bold text-gray-800 uppercase tracking-wide">Document Viewer</h2>
+                    <button onclick="document.getElementById('doc-modal').classList.add('hidden'); document.getElementById('doc-iframe').src='';" class="text-gray-500 hover:text-red-500 p-2 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <div class="flex-grow w-full bg-gray-200">
+                    <iframe id="doc-iframe" src="" class="w-full h-full border-0"></iframe>
+                </div>
+            </div>
+        </div>
+    
+        
+        <!-- Single Photo Modal -->
+        <div id="single-photo-modal" class="fixed inset-0 z-[60] hidden bg-black/90 flex items-center justify-center p-4 transition-opacity">
+            <div class="relative max-w-5xl w-full max-h-[95vh] flex justify-center">
+                <img id="single-photo-img" src="" class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl">
+                <button class="absolute top-0 right-0 m-4 text-white hover:text-red-500 p-2 bg-black/50 rounded-full" onclick="document.getElementById('single-photo-modal').classList.add('hidden')">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+        </div>
+    
+    
+        
+        <!-- Header -->
+        <header class="w-full flex flex-col items-center mb-12 pb-8 border-b border-white/10">
+            
+        <div class="flex flex-wrap justify-center items-center gap-4 mb-6">
+            <img src="../../smart%20view%20reports/smart%20view%20reports%20-%20application%20-%20test%20for%20desktop/application_system_files/core_engine/app_assets/smart%20view%20reports%20logo/smart%20view%20reports%20logo.png" class="h-28 w-auto object-contain drop-shadow-md mx-4">
+        </div>
+        
+            <div class="text-center">
+                <h1 class="text-5xl font-black tracking-[0.2em] uppercase text-white drop-shadow-2xl px-4 mb-2">
+                    Smart View Project
+                </h1>
+                <div class="inline-block px-6 py-2 bg-theme-orange/20 border border-theme-orange/40 rounded-full backdrop-blur-md">
+                    <span class="text-sm font-black tracking-[0.3em] uppercase text-theme-orange drop-shadow-sm">
+                        Project Active
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <main class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Progress Metrics -->
+            <div class="col-span-1 flex flex-col gap-6">
+                <!-- Status Details -->
+                <section class="glass p-6 text-center relative">
+                    <h2 class="text-sm uppercase tracking-widest font-semibold text-gray-500 mb-4 flex items-center gap-2">Project Status</h2>
+                    <table class="w-full text-sm text-left border-collapse border border-gray-200 shadow-sm">
+                        <tbody>
+                            <tr class="border-b border-gray-200"><th class="p-3 bg-gray-50 text-gray-600 w-1/2 font-black uppercase text-[10px] tracking-widest">Current Date</th><td class="p-3 text-gray-800 font-medium">09 April 2026</td></tr><tr class="border-b border-gray-200"><th class="p-3 bg-gray-50 text-gray-600 font-black uppercase text-[10px] tracking-widest">Actual Progress</th><td class="p-3 font-bold text-theme-orange">0%</td></tr><tr class="border-b border-gray-200"><th class="p-3 bg-gray-50 text-gray-600 font-black uppercase text-[10px] tracking-widest">Baseline Progress</th><td class="p-3 font-bold text-theme-green">0%</td></tr><tr class="border-b border-gray-200"><th class="p-3 bg-gray-50 text-gray-600 font-black uppercase text-[10px] tracking-widest">Progress Variance</th><td class="p-3 font-bold text-gray-800">0.0%</td></tr><tr><th class="p-3 bg-gray-50 text-gray-600 font-black uppercase text-[10px] tracking-widest">Forecast Completion Date</th><td class="p-3 font-bold text-gray-800">09 May 2026</td></tr><tr class="border-b border-gray-200"><th class="p-3 bg-gray-50 text-gray-600 font-black uppercase text-[10px] tracking-widest">Contract Duration (Days)</th><td class="p-3 font-bold text-gray-800">0</td></tr><tr class="border-b border-gray-200"><th class="p-3 bg-gray-50 text-gray-600 font-black uppercase text-[10px] tracking-widest">Elapsed Time (Days)</th><td class="p-3 font-bold text-gray-800">0</td></tr><tr class="border-b border-gray-200"><th class="p-3 bg-gray-50 text-gray-600 font-black uppercase text-[10px] tracking-widest">Overall Project Status</th><td class="p-3 font-bold text-gray-800">On Track</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Delay Tracker -->
+                <section class="glass p-6 border-l-4 border-theme-orange transition-all" style="display: block;">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="text-sm uppercase tracking-widest font-semibold flex items-center gap-2 text-gray-800">
+                            <svg class="h-5 w-5 theme-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Delay Tracker
+                        </h2>
+                        <button onclick="document.getElementById('delay-modal').classList.remove('hidden')" class="bg-gray-800 hover:bg-black text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm transition-colors uppercase tracking-wider">
+                            Graph
+                        </button>
+                    </div>
+                    <div class="p-3 text-center bg-gray-50 border border-gray-200 rounded-lg text-gray-400 italic text-sm">No delays reported for this shift.</div>
+                </section>
+            </div>
+ 
+            <!-- S-Curve and Granular Details -->
+            <div class="col-span-1 lg:col-span-2 flex flex-col gap-6" style="display: flex;">
+                <section class="glass p-6 flex-grow flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-sm uppercase tracking-widest font-semibold text-gray-500">Baseline vs Actual (S-Curve)</h2>
+                    </div>
+                    
+                    <div class="relative flex-grow min-h-[300px] w-full bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                        <canvas id="sCurveChart"></canvas>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Site Photos & Safety -->
+            <div class="col-span-1 lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Site Progress Photos -->
+                <section class="glass p-6 md:col-span-2" style="display: block;">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-sm uppercase tracking-widest font-semibold text-gray-500">Site Progress Photos</h2>
+                        <button onclick="document.getElementById('photo-modal').classList.remove('hidden')" class="bg-theme-orange hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md transition-colors uppercase tracking-wider">
+                            View All Photos
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-center h-48 bg-gray-50 border border-gray-200 rounded-lg shadow-inner"><p class="text-xs text-gray-400 italic font-medium">No progress photos provided for this report.</p></div>
+                </section>
+
+                <!-- Safety Focus & Feedback -->
+                <section class="glass p-6 flex flex-col justify-center border-l-4 border-l-theme-green shadow-sm" style="display: flex;">
+                    <h2 class="text-sm uppercase tracking-widest font-bold text-gray-800 mb-6 flex items-center gap-2">
+                        <svg class="w-5 h-5 theme-green" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        Safety Focus Point & Feedback
+                    </h2>
+                    <div class="p-4 text-center bg-gray-50 border border-gray-200 rounded-xl text-gray-400 italic text-sm mt-3 font-medium">All Safety Protocols Maintained. No specific highlights provided.</div>
+                </section>
+            </div>
+
+            <!-- Dynamic WIP & Forecast Update -->
+            <div class="col-span-1 lg:col-span-3" style="display: block;">
+                <section class="glass p-6 text-left shadow-sm">
+                    <h2 class="text-sm uppercase tracking-widest font-semibold text-gray-500 mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
+                         <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        TASK STATUS
+                    </h2>
+                    <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <li class="col-span-2 text-gray-400 italic text-sm p-8 text-center bg-gray-50 border border-dashed border-gray-200 rounded-xl">No specific task feedback logged for this shift.</li>
+                    </ul>
+                </section>
+            </div>
+
+            <!-- Custom User Sections -->
+            
+            
+        </main>
+
+        <!-- Photo Modal -->
+        <div id="photo-modal" class="fixed inset-0 z-50 hidden bg-black/80 flex items-center justify-center p-4 transition-opacity">
+            <div class="bg-white max-w-6xl w-full max-h-[90vh] rounded-xl shadow-2xl flex flex-col overflow-hidden">
+                <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                    <h2 class="text-lg font-bold text-gray-800 uppercase tracking-wide flex items-center gap-2">
+                        <svg class="w-5 h-5 theme-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        All Site Photos
+                    </h2>
+                    <button onclick="document.getElementById('photo-modal').classList.add('hidden')" class="text-gray-500 hover:text-red-500 p-2 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <div class="p-6 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 bg-slate-50">
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- Delay Modal -->
+        <div id="delay-modal" class="fixed inset-0 z-[60] hidden bg-black/80 flex items-center justify-center p-4 transition-opacity">
+            <div class="bg-white w-full h-full max-w-4xl max-h-[85vh] rounded-xl shadow-2xl flex flex-col overflow-hidden">
+                <div class="flex justify-between items-center p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-bold text-gray-800 tracking-wider uppercase">Project Cumulative Delays</h3>
+                    <button onclick="document.getElementById('delay-modal').classList.add('hidden')" class="text-gray-400 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-gray-100">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <div class="flex-grow p-4 bg-gray-50 relative min-h-[300px]">
+                    <div class="w-full h-full relative border border-gray-200 rounded-lg shadow-inner bg-white p-2">
+                        <canvas id="delayChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Intellectual Property Footer -->
+        <footer class="w-full mt-10 pt-4 text-center text-[10px] text-gray-500 pb-2 print:pb-0 uppercase tracking-wide">
+            <p class="mb-1"><span class="font-bold text-gray-600">Smart View Reports</span> &nbsp;|&nbsp; &copy; 2026 Werner Victor Webb</p>
+            <p><strong>Intellectual Property:</strong> The platform's design and functionality are the property of Werner Victor Webb and strictly cannot be replicated.</p>
+        </footer>
+    </body>
+    </html>
+    
